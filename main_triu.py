@@ -30,7 +30,7 @@ data = pd.read_csv("arch/fashion-mnist_train.csv")
 X = torch.from_numpy(data[data.columns[1:]].values).float().cuda()
 Y = torch.from_numpy(data[data.columns[0]].values).float().cuda()
 
-test_data = pd.read_csv("archive/fashion-mnist_test.csv")
+test_data = pd.read_csv("arch/fashion-mnist_test.csv")
 
 test_x = torch.from_numpy(test_data[test_data.columns[1:]].values).float().cuda()
 test_y = torch.from_numpy(test_data[test_data.columns[0]].values).float().cuda()
