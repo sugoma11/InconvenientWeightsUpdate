@@ -45,125 +45,129 @@ ce = CrossEntropy(optimize_exponents=True)
 
 nn2_old_bn = Network(reg_func=torch_reg, loss_func=ce, reg_lambda=0.001, lr=0.01)
 
-nn2_old_bn.add_layer(Linear((784, 256)))
-nn2_old_bn.add_layer(BatchNorm1d(256))
+nn2_old_bn.add_layer(Linear((784, 784)))
+nn2_old_bn.add_layer(BatchNorm1d(784))
 nn2_old_bn.add_layer(LReLU(0.001))
 
-nn2_old_bn.add_layer(Linear((256, 10)))
+nn2_old_bn.add_layer(Linear((784, 10)))
 
 nn2_new_bn = deepcopy(nn2_old_bn)
 
 
 nn3_old_bn = Network(reg_func=torch_reg, loss_func=ce, reg_lambda=0.001, lr=0.01)
 
-nn3_old_bn.add_layer(Linear((784, 512)))
-nn3_old_bn.add_layer(BatchNorm1d(512))
+nn3_old_bn.add_layer(Linear((784, 784)))
+nn3_old_bn.add_layer(BatchNorm1d(784))
 nn3_old_bn.add_layer(LReLU(0.001))
 
-nn3_old_bn.add_layer(Linear((512, 256)))
-nn3_old_bn.add_layer(BatchNorm1d(256))
+nn3_old_bn.add_layer(Linear((784, 784)))
+nn3_old_bn.add_layer(BatchNorm1d(784))
 nn3_old_bn.add_layer(LReLU(0.001))
 
-nn3_old_bn.add_layer(Linear((256, 10)))
+nn3_old_bn.add_layer(Linear((784, 10)))
 
 nn3_new_bn = deepcopy(nn3_old_bn)
 
 
 nn4_old_bn = Network(reg_func=torch_reg, loss_func=ce, reg_lambda=0.001, lr=0.01)
 
-nn4_old_bn.add_layer(Linear((784, 512)))
-nn4_old_bn.add_layer(BatchNorm1d(512))
+nn4_old_bn.add_layer(Linear((784, 784)))
+nn4_old_bn.add_layer(BatchNorm1d(784))
 nn4_old_bn.add_layer(LReLU(0.001))
 
-nn4_old_bn.add_layer(Linear((512, 256)))
-nn4_old_bn.add_layer(BatchNorm1d(256))
+nn4_old_bn.add_layer(Linear((784, 784)))
+nn4_old_bn.add_layer(BatchNorm1d(784))
 nn4_old_bn.add_layer(LReLU(0.001))
 
-nn4_old_bn.add_layer(Linear((256, 128)))
-nn4_old_bn.add_layer(BatchNorm1d(128))
+nn4_old_bn.add_layer(Linear((784, 784)))
+nn4_old_bn.add_layer(BatchNorm1d(784))
 nn4_old_bn.add_layer(LReLU(0.001))
 
-nn4_old_bn.add_layer(Linear((128, 10)))
+nn4_old_bn.add_layer(Linear((784, 10)))
 
 nn4_new_bn = deepcopy(nn4_old_bn)
 
 nn5_old_bn = Network(reg_func=torch_reg, loss_func=ce, reg_lambda=0.001, lr=0.01)
 
-nn5_old_bn.add_layer(Linear((784, 512)))
-nn5_old_bn.add_layer(BatchNorm1d(512))
+nn5_old_bn.add_layer(Linear((784, 784)))
+nn5_old_bn.add_layer(BatchNorm1d(784))
 nn5_old_bn.add_layer(LReLU(0.001))
 
-nn5_old_bn.add_layer(Linear((512, 256)))
-nn5_old_bn.add_layer(BatchNorm1d(256))
+nn5_old_bn.add_layer(Linear((784, 784)))
+nn5_old_bn.add_layer(BatchNorm1d(784))
 nn5_old_bn.add_layer(LReLU(0.001))
 
-nn5_old_bn.add_layer(Linear((256, 128)))
-nn5_old_bn.add_layer(BatchNorm1d(128))
+nn5_old_bn.add_layer(Linear((784, 784)))
+nn5_old_bn.add_layer(BatchNorm1d(784))
 nn5_old_bn.add_layer(LReLU(0.001))
 
-nn5_old_bn.add_layer(Linear((128, 64)))
-nn5_old_bn.add_layer(BatchNorm1d(64))
+nn5_old_bn.add_layer(Linear((784, 784)))
+nn5_old_bn.add_layer(BatchNorm1d(784))
 nn5_old_bn.add_layer(LReLU(0.001))
 
-nn5_old_bn.add_layer(Linear((64, 10)))
+nn5_old_bn.add_layer(Linear((784, 784)))
+nn5_old_bn.add_layer(BatchNorm1d(784))
+nn5_old_bn.add_layer(LReLU(0.001))
+
+nn5_old_bn.add_layer(Linear((784, 10)))
 
 nn5_new_bn = deepcopy(nn5_old_bn)
 
 
 nn6_old_bn = Network(reg_func=torch_reg, loss_func=ce, reg_lambda=0.001, lr=0.01)
 
-nn6_old_bn.add_layer(Linear((784, 512)))
-nn6_old_bn.add_layer(BatchNorm1d(512))
+nn6_old_bn.add_layer(Linear((784, 784)))
+nn6_old_bn.add_layer(BatchNorm1d(784))
 nn6_old_bn.add_layer(LReLU(0.001))
 
-nn6_old_bn.add_layer(Linear((512, 256)))
-nn6_old_bn.add_layer(BatchNorm1d(256))
+nn6_old_bn.add_layer(Linear((784, 784)))
+nn6_old_bn.add_layer(BatchNorm1d(784))
 nn6_old_bn.add_layer(LReLU(0.001))
 
-nn6_old_bn.add_layer(Linear((256, 128)))
-nn6_old_bn.add_layer(BatchNorm1d(128))
+nn6_old_bn.add_layer(Linear((784, 784)))
+nn6_old_bn.add_layer(BatchNorm1d(784))
 nn6_old_bn.add_layer(LReLU(0.001))
 
-nn6_old_bn.add_layer(Linear((128, 64)))
-nn6_old_bn.add_layer(BatchNorm1d(64))
+nn6_old_bn.add_layer(Linear((784, 784)))
+nn6_old_bn.add_layer(BatchNorm1d(784))
 nn6_old_bn.add_layer(LReLU(0.001))
 
-nn6_old_bn.add_layer(Linear((64, 32)))
-nn6_old_bn.add_layer(BatchNorm1d(32))
+nn6_old_bn.add_layer(Linear((784, 784)))
+nn6_old_bn.add_layer(BatchNorm1d(784))
 nn6_old_bn.add_layer(LReLU(0.001))
 
-nn6_old_bn.add_layer(Linear((32, 10)))
+nn6_old_bn.add_layer(Linear((784, 10)))
 
 nn6_new_bn = deepcopy(nn6_old_bn)
 
 
 nn7_old_bn = Network(reg_func=torch_reg, loss_func=ce, reg_lambda=0.001, lr=0.01)
 
-nn7_old_bn.add_layer(Linear((784, 512)))
-nn7_old_bn.add_layer(BatchNorm1d(512))
+nn7_old_bn.add_layer(Linear((784, 784)))
+nn7_old_bn.add_layer(BatchNorm1d(784))
 nn7_old_bn.add_layer(LReLU(0.001))
 
-nn7_old_bn.add_layer(Linear((512, 256)))
-nn7_old_bn.add_layer(BatchNorm1d(256))
+nn7_old_bn.add_layer(Linear((784, 784)))
+nn7_old_bn.add_layer(BatchNorm1d(784))
 nn7_old_bn.add_layer(LReLU(0.001))
 
-nn7_old_bn.add_layer(Linear((256, 128)))
-nn7_old_bn.add_layer(BatchNorm1d(128))
+nn7_old_bn.add_layer(Linear((784, 784)))
+nn7_old_bn.add_layer(BatchNorm1d(784))
 nn7_old_bn.add_layer(LReLU(0.001))
 
-nn7_old_bn.add_layer(Linear((128, 64)))
-nn7_old_bn.add_layer(BatchNorm1d(64))
+nn7_old_bn.add_layer(Linear((784, 784)))
+nn7_old_bn.add_layer(BatchNorm1d(784))
 nn7_old_bn.add_layer(LReLU(0.001))
 
-nn7_old_bn.add_layer(Linear((64, 32)))
-nn7_old_bn.add_layer(BatchNorm1d(32))
+nn7_old_bn.add_layer(Linear((784, 784)))
+nn7_old_bn.add_layer(BatchNorm1d(784))
 nn7_old_bn.add_layer(LReLU(0.001))
 
-nn7_old_bn.add_layer(Linear((32, 16)))
-nn7_old_bn.add_layer(BatchNorm1d(16))
+nn7_old_bn.add_layer(Linear((784, 784)))
+nn7_old_bn.add_layer(BatchNorm1d(784))
 nn7_old_bn.add_layer(LReLU(0.001))
 
-nn7_old_bn.add_layer(Linear((16, 10)))
+nn7_old_bn.add_layer(Linear((784, 10)))
 
 nn7_new_bn = deepcopy(nn7_old_bn)
 
@@ -243,7 +247,7 @@ def train_two_models(model_one, model_two, epoch, batch_size, lr_schedule=None):
     num_of_layers = sum(1 for layer in model_one.layers if isinstance(layer, Linear))
     is_bn = bool(sum(1 for layer in model_one.layers if isinstance(layer, BatchNorm1d)))
 
-    output = open(f'results_triu/bs-{batch_size};layers-{num_of_layers};-BN={is_bn}.pkl', 'wb')
+    output = open(f'results_squash/bs-{batch_size};layers-{num_of_layers};BN={is_bn};lr-{model_one.lr}.pkl', 'wb')
     pickle.dump(
         [loss_tr_old, loss_tr_new, acc_tr_old, acc_tr_new, loss_val_old, loss_val_new, acc_val_old, acc_val_new],
         output)
