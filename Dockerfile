@@ -9,8 +9,9 @@ RUN pip3 install matplotlib==3.9.2
 RUN pip3 install pandas==2.2.3
 RUN pip3 install tqdm==4.66.5
 
-RUN git clone git@github.com:sugoma11/InconvenientWeightsUpdate.git
+RUN git clone https://github.com/sugoma11/InconvenientWeightsUpdate.git
 WORKDIR InconvenientWeightsUpdate
+RUN git pull origin master
 
 RUN mkdir arch
 RUN wget https://media.githubusercontent.com/media/fpleoni/fashion_mnist/refs/heads/master/fashion-mnist_test.csv -O arch/fashion-mnist_test.csv
@@ -19,4 +20,4 @@ RUN wget https://media.githubusercontent.com/media/fpleoni/fashion_mnist/refs/he
 RUN mkdir results_trui
 RUN mkdir results_squash
 
-CMD ["python3", "main_triu.py"]
+CMD ["python3", "/home/sc.uni-leipzig.de/ms53dumu/InconvenientWeightsUpdate/main_triu.py"]

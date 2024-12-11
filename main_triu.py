@@ -25,12 +25,12 @@ def get_batches(x, y, batch_size):
         yield x[i:i + batch_size], y[i:i + batch_size]
 
 
-data = pd.read_csv("arch/fashion-mnist_train.csv")
+data = pd.read_csv("/home/sc.uni-leipzig.de/ms53dumu/InconvenientWeightsUpdate/arch/fashion-mnist_train.csv")
 
 X = torch.from_numpy(data[data.columns[1:]].values).float().cuda()
 Y = torch.from_numpy(data[data.columns[0]].values).float().cuda()
 
-test_data = pd.read_csv("arch/fashion-mnist_test.csv")
+test_data = pd.read_csv("/home/sc.uni-leipzig.de/ms53dumu/InconvenientWeightsUpdate/arch/fashion-mnist_test.csv")
 
 test_x = torch.from_numpy(test_data[test_data.columns[1:]].values).float().cuda()
 test_y = torch.from_numpy(test_data[test_data.columns[0]].values).float().cuda()
@@ -243,7 +243,7 @@ def train_two_models(model_one, model_two, epoch, batch_size, lr_schedule=None):
     num_of_layers = sum(1 for layer in model_one.layers if isinstance(layer, Linear))
     is_bn = bool(sum(1 for layer in model_one.layers if isinstance(layer, BatchNorm1d)))
 
-    output = open(f'results_triu/bs-{batch_size};layers-{num_of_layers};BN={is_bn};lr-{model_one.lr}.pkl', 'wb')
+    output = open(f'/home/sc.uni-leipzig.de/ms53dumu/InconvenientWeightsUpdate/results_triu/bs-{batch_size};layers-{num_of_layers};BN={is_bn};lr-{model_one.lr}.pkl', 'wb')
     pickle.dump(
         [loss_tr_old, loss_tr_new, acc_tr_old, acc_tr_new, loss_val_old, loss_val_new, acc_val_old, acc_val_new],
         output)
