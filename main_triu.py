@@ -267,14 +267,20 @@ def train_batches(model_one, model_two, epoch, init_lr_list: list, batch_sizes_l
         del model_two_
 
 
-epoch_num = 3
+epoch_num = 20
 init_lr = 0.00075
-batch_sizes = [2, 4, 8, 16, 32, 64, 128, 256, 512]
+batch_sizes = [2, 4, 6, 8, 12, 16, 24, 32, 64, 128, 256, 512]
 lrs_list = [init_lr * np.sqrt(i * 2) for i in range(len(batch_sizes))]
 
 train_batches(nn2_old_bn, nn2_new_bn,  epoch=epoch_num, init_lr_list=lrs_list, batch_sizes_list=batch_sizes)
+del nn2_old_bn, nn2_new_bn
 train_batches(nn3_old_bn, nn3_new_bn,  epoch=epoch_num, init_lr_list=lrs_list, batch_sizes_list=batch_sizes)
+del nn3_old_bn, nn3_new_bn
 train_batches(nn4_old_bn, nn4_new_bn,  epoch=epoch_num, init_lr_list=lrs_list, batch_sizes_list=batch_sizes)
+del nn4_old_bn, nn4_new_bn
 train_batches(nn5_old_bn, nn5_new_bn,  epoch=epoch_num, init_lr_list=lrs_list, batch_sizes_list=batch_sizes)
+del nn5_old_bn, nn5_new_bn
 train_batches(nn6_old_bn, nn6_new_bn,  epoch=epoch_num, init_lr_list=lrs_list, batch_sizes_list=batch_sizes)
+del nn6_old_bn, nn6_new_bn
 train_batches(nn7_old_bn, nn7_new_bn,  epoch=epoch_num, init_lr_list=lrs_list, batch_sizes_list=batch_sizes)
+del nn7_old_bn, nn7_new_bn
