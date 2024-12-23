@@ -7,6 +7,7 @@ import pickle
 import pandas as pd
 from tqdm import tqdm
 import torch
+import random
 
 from network import Network
 from layers import Linear, LReLU, BatchNorm1d, CrossEntropy
@@ -23,6 +24,15 @@ def torch_reg(x):
 def get_batches(x, y, batch_size):
     for i in range(0, len(x), batch_size):
         yield x[i:i + batch_size], y[i:i + batch_size]
+
+
+def get_batches_rnd(x, y, batch_size):
+    indices = list(range(len(x)))
+    random.shuffle(indices)
+
+    for i in range(0, len(x), batch_size):
+        batch_indices = indices[i:i + batch_size]
+        yield x[batch_indices], y[batch_indices]
 
 
 data = pd.read_csv("/home/sc.uni-leipzig.de/ms53dumu/InconvenientWeightsUpdate/arch/fashion-mnist_train.csv")
@@ -195,7 +205,7 @@ def train_two_models(model_one, model_two, epoch, batch_size, lr_schedule=None):
             model_one.change_lr(lr_schedule[ep])
             model_two.change_lr(lr_schedule[ep])
 
-        for i, batch in tqdm(enumerate(get_batches(X_train_small, y_train_small, batch_size))):
+        for i, batch in tqdm(enumerate(get_batches_rnd(X_train_small, y_train_small, batch_size))):
             x_batch, y_batch = batch
 
             loss_tr_old_.append(model_one.my_fit(x_batch, y_batch, True))
@@ -271,7 +281,7 @@ def train_batches(model_one, model_two, epoch, init_lr_list: list, batch_sizes_l
 epoch_num = 20
 init_lr = 0.00075
 batch_sizes = [2, 4, 6, 8, 12, 16, 24, 32, 64, 128, 256, 512]
-lrs_list = [0.01 for i in range(1, len(batch_sizes))]
+lrs_list = [0.001 for i in range(1, len(batch_sizes))]
 
 train_batches(nn2_old_bn, nn2_new_bn,  epoch=epoch_num, init_lr_list=lrs_list, batch_sizes_list=batch_sizes)
 del nn2_old_bn, nn2_new_bn
