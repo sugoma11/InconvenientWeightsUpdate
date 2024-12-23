@@ -243,7 +243,8 @@ def train_two_models(model_one, model_two, epoch, batch_size, lr_schedule=None):
     num_of_layers = sum(1 for layer in model_one.layers if isinstance(layer, Linear))
     is_bn = bool(sum(1 for layer in model_one.layers if isinstance(layer, BatchNorm1d)))
 
-    output = open(f'/home/sc.uni-leipzig.de/ms53dumu/InconvenientWeightsUpdate/results_triu/bs-{batch_size};layers-{num_of_layers};BN={is_bn};lr-{model_one.lr}.pkl', 'wb')
+    output = open(f'/home/sc.uni-leipzig.de/ms53dumu/InconvenientWeightsUpdate/results_triu_const_lr_0.01/bs-{batch_size};layers-{num_of_layers};BN={is_bn};lr-{round(model_one.lr, 7)}.pkl', 'wb')
+
     pickle.dump(
         [loss_tr_old, loss_tr_new, acc_tr_old, acc_tr_new, loss_val_old, loss_val_new, acc_val_old, acc_val_new],
         output)
@@ -270,7 +271,7 @@ def train_batches(model_one, model_two, epoch, init_lr_list: list, batch_sizes_l
 epoch_num = 20
 init_lr = 0.00075
 batch_sizes = [2, 4, 6, 8, 12, 16, 24, 32, 64, 128, 256, 512]
-lrs_list = [init_lr * np.sqrt(i * 2) for i in range(1, len(batch_sizes))]
+lrs_list = [0.01 for i in range(1, len(batch_sizes))]
 
 train_batches(nn2_old_bn, nn2_new_bn,  epoch=epoch_num, init_lr_list=lrs_list, batch_sizes_list=batch_sizes)
 del nn2_old_bn, nn2_new_bn
