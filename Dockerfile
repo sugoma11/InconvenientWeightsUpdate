@@ -17,6 +17,9 @@ RUN mkdir arch
 RUN wget https://media.githubusercontent.com/media/fpleoni/fashion_mnist/refs/heads/master/fashion-mnist_test.csv -O arch/fashion-mnist_test.csv
 RUN wget https://media.githubusercontent.com/media/fpleoni/fashion_mnist/refs/heads/master/fashion-mnist_train.csv -O arch/fashion-mnist_train.csv
 
+RUN wget https://pjreddie.com/media/files/mnist_train.csv -O ./arch/mnist_train.csv
+RUN wget https://pjreddie.com/media/files/mnist_test.csv -O ./arch/mnist_test.csv
+
 RUN mkdir results_trui
 RUN mkdir results_squash
 
