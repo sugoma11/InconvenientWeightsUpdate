@@ -1,11 +1,14 @@
 import torch
+import torch.nn.functional as F
+from torch import nn
 
 
 class Linear:
 
-    def __init__(self, size: tuple, weight=None, bias=None, init_type='uniform', activation_param=0.001,
+    def __init__(self, size: tuple, weight=None, bias=None, device='cpu', init_type='uniform', activation_param=0.001,
                  normalize_forward=True):
 
+        self.device = device
         # FIXME
         # actually incorrect init
         if init_type == 'leaky_relu':
@@ -15,24 +18,24 @@ class Linear:
             else:
                 stdv = torch.nn.init.calculate_gain(init_type, activation_param) * size[0] ** -0.5
 
-            self.weight = torch.empty(size).normal_(0, stdv).cuda()
-            self.bias = torch.empty(size[1]).normal_(0, stdv).cuda()
+            self.weight = torch.empty(size).normal_(0, stdv).to(device)
+            self.bias = torch.empty(size[1]).normal_(0, stdv).to(device)
 
         elif init_type == 'uniform':
             # https://pytorch.org/docs/stable/generated/torch.nn.Linear.html
             torch.manual_seed(0)
-            self.weight = torch.empty(size[0], size[1]).cuda()
+            self.weight = torch.empty(size[0], size[1]).to(device)
             torch.nn.init.kaiming_uniform_(self.weight, a=5 ** 0.5)
 
-            self.bias = torch.empty(size[1]).cuda()
+            self.bias = torch.empty(size[1]).to(device)
             bound = 1 / size[0] ** 0.5 if size[0] > 0 else 0
             torch.manual_seed(0)
             torch.nn.init.uniform_(self.bias, -bound, bound)
 
         if weight is not None:
 
-            self.weight = weight
-            self.bias = bias
+            self.weight = weight.detach()
+            self.bias = bias.detach()
 
             if weight.shape != size:
                 raise Exception("Loaded weight has wrong size!")
@@ -42,8 +45,9 @@ class Linear:
 
     def update_weights(self, dweights, dbias):
 
-        self.weight -= dweights
-        self.bias -= dbias
+        with torch.no_grad():
+            self.weight -= dweights
+            self.bias -= dbias
 
     def get_weights(self):
         return self.weight, self.bias
@@ -51,22 +55,23 @@ class Linear:
     def __call__(self, x, *args, **kwargs):
 
         self.inp = x
-        out = x @ self.weight + self.bias
-        self.out = out
+
+        with torch.no_grad():
+            out = x @ self.weight + self.bias
+            self.out = out
 
         return out
 
     def backward(self, dloss, lr, use_old, reg_lambda, regularizer):
 
-        d_weights = self.inp.T @ dloss
-        d_bias = (torch.ones(self.inp.shape[0]).cuda() @ dloss) / self.inp.shape[0]
+        with torch.no_grad():
+            d_weights = self.inp.T @ dloss
+            d_bias = (torch.ones(self.inp.shape[0]).to(self.device) @ dloss) / self.inp.shape[0]
 
         old_w = self.weight.clone()
 
         self.update_weights(lr * (d_weights + reg_lambda * (regularizer(self.weight))),
                             lr * (d_bias + reg_lambda * (regularizer(self.bias))))
-
-        old_loss = torch.mean(dloss).item()
 
         if use_old:
             dloss @= old_w.T
@@ -74,21 +79,24 @@ class Linear:
         else:
             dloss @= self.weight.T
 
+        del d_bias
+        del old_w
+
         return dloss
 
 
 class BatchNorm1d:
 
-    def __init__(self, dim, eps=1e-5, momentum=0.1):
+    def __init__(self, dim, device='cpu', eps=1e-5, momentum=0.1):
 
         self.eps = eps
         self.momentum = momentum
 
-        self.weight = torch.ones(dim).cuda()
-        self.bias = torch.zeros(dim).cuda()
+        self.weight = torch.ones(dim).to(device)
+        self.bias = torch.zeros(dim).to(device)
 
-        self.running_mean = torch.zeros(dim).cuda()
-        self.running_var = torch.ones(dim).cuda()
+        self.running_mean = torch.zeros(dim).to(device)
+        self.running_var = torch.ones(dim).to(device)
 
         self.x = None
         self.xhat = None
@@ -97,24 +105,26 @@ class BatchNorm1d:
         self.mean = None
         self.var = None
 
-    def update_weights(self, dweight, dbias):
+        self.device = device
 
-        self.weight -= dweight
-        self.bias -= dbias
+    def update_weights(self, dweight, dbias):
+        with torch.no_grad():
+            self.weight -= dweight
+            self.bias -= dbias
 
     def __call__(self, x, is_training=True):
 
         self.x = x
+        with torch.no_grad():
+            if is_training:
+                self.mean = x.mean(0, keepdim=True)  # batch mean
+                self.var = x.var(0, keepdim=True, unbiased=False)  # batch variance
 
-        if is_training:
-            self.mean = x.mean(0, keepdim=True)  # batch mean
-            self.var = x.var(0, keepdim=True, unbiased=False)  # batch variance
+            else:
+                self.mean = self.running_mean
+                self.var = self.running_var
 
-        else:
-            self.mean = self.running_mean
-            self.var = self.running_var
-
-        self.xhat = (x - self.mean) / torch.sqrt(self.var + self.eps)  # normalize to unit variance
+            self.xhat = (x - self.mean) / torch.sqrt(self.var + self.eps)  # normalize to unit variance
 
         if is_training:
             with torch.no_grad():
@@ -168,7 +178,12 @@ class LReLU:
         return out
 
     def backward(self, dloss, *args, **kwargs):
-        return dloss * self.local_grad
+        dloss = dloss * self.local_grad
+
+        del self.local_grad
+        del self.out
+
+        return dloss
 
 
 class CrossEntropy:
@@ -183,7 +198,6 @@ class CrossEntropy:
 
         # if is_training:
         self.local_grad = -(one_hot_target - self.get_probabilities(x)) / len(x)
-
         mean_cross_entropy = -(
                     (x * one_hot_target).sum(axis=1, keepdim=True) - x.exp().sum(axis=1, keepdim=True).log()).mean()
         return mean_cross_entropy
@@ -200,3 +214,95 @@ class CrossEntropy:
         else:
             _exp_outputs = x.exp()
         return (_exp_outputs.T / _exp_outputs.sum(axis=1)).T
+
+
+class Conv2DWrapper:
+    def __init__(self, in_channels, out_channels, kernel_size, device='cpu', stride=1, padding=0, bias_use=True,
+                 weight=None, bias=None):
+        # Initialize the Conv2D layer
+        self.conv = nn.Conv2d(in_channels, out_channels, kernel_size, stride, padding, bias=bias_use).to(device)
+
+        if weight is not None:
+            self.conv.weight = torch.nn.Parameter(weight, requires_grad=False)
+            self.conv.bias = torch.nn.Parameter(bias, requires_grad=False)
+
+        self.inp = None  # To store the input during forward pass
+        self.out = None  # To store the output during forward pass
+
+    def __call__(self, x, *args, **kwargs):
+        # Forward pass
+        self.inp = x.clone().detach()
+
+        with torch.no_grad():
+            self.out = self.conv(x)
+
+        return self.out
+
+    def update_weights(self, dweights, dbias, lr):
+        with torch.no_grad():
+            self.conv.weight -= lr * dweights
+            if self.conv.bias is not None:
+                self.conv.bias -= lr * dbias
+
+    def backward(self, dloss, lr, use_old, *args, **kwargs):
+
+        dweights = F.conv2d(self.inp.permute(1, 0, 2, 3), dloss.permute(1, 0, 2, 3), stride=self.conv.stride,
+                            padding=self.conv.padding)
+        dweights = dweights.permute(1, 0, 2, 3)  # Permute back to match weight shape
+
+        if self.conv.bias is not None:
+            dbias = dloss.sum(dim=(0, 2, 3))  # Sum over batch, height, and width
+        else:
+            dbias = None
+
+        if use_old:
+            dloss_prev = F.conv_transpose2d(dloss, self.conv.weight, stride=self.conv.stride, padding=self.conv.padding)
+            self.update_weights(dweights, dbias, lr)
+            del dweights
+            del dbias
+            return dloss_prev
+        else:
+            self.update_weights(dweights, dbias, lr)
+            dloss_prev = F.conv_transpose2d(dloss, self.conv.weight, stride=self.conv.stride, padding=self.conv.padding)
+            del dweights
+            del dbias
+            return dloss_prev
+
+        # print(f'{type(self)=}')
+        # print(f'{dweights.shape=}')
+        # print(f'{self.conv.weight.shape=}')
+
+
+class MyFlatten:
+    def __init__(self):
+        self.input_shape = None
+
+    def __call__(self, x: torch.Tensor, *args, **kwargs):
+        self.input_shape = x.shape
+        return torch.flatten(x, 1)
+
+    def backward(self, dloss: torch.Tensor, *args, **kwargs):
+        return dloss.reshape(self.input_shape)
+
+
+class MaxPool2DWrapper:
+    def __init__(self, kernel_size, stride, padding):
+        self.inp = None  # To store the input during forward pass
+        self.out = None  # To store the output during forward pass
+        self.indices = None  # To store the indices of max values during forward pass
+
+        self.kernel_size = kernel_size
+        self.stride = stride
+        self.padding = padding
+
+    def __call__(self, x, *args, **kwargs):
+        # Forward pass
+        self.inp = x.clone()
+        with torch.no_grad():
+            self.out, self.indices = F.max_pool2d(x, self.kernel_size, self.stride, self.padding, return_indices=True)
+        return self.out
+
+    def backward(self, dloss, *args, **kwargs):
+        dloss_prev = F.max_unpool2d(dloss, self.indices, self.kernel_size, self.stride, self.padding, self.inp.shape)
+        del self.inp
+        return dloss_prev

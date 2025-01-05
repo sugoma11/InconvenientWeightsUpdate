@@ -21,6 +21,9 @@ class Network:
 
         print(f'Adding layer: {layer.__class__.__name__}')
 
+        if layer.__class__.__name__ in ['Conv2DWrapper', 'MyFlatten']:
+            pass
+
         if not self.layers or layer.__class__.__name__ not in ['Linear', 'BatchNorm1d']:
 
             self.layers.append(layer)
@@ -38,7 +41,8 @@ class Network:
             self.layers.append(layer)
 
         else:
-            raise Exception("Wrong size of the layer!")
+            self.layers.append(layer)
+            # raise Exception("Wrong size of the layer!")
 
     def get_loss(self):
         return self.loss.detach().cpu().numpy()
@@ -47,6 +51,7 @@ class Network:
 
         for layer in self.layers:
             x = layer(x, is_training=False)
+            # print(f'{layer.__class__.__name__}: {x.shape}, {x.mean()}')
 
         return x
 
